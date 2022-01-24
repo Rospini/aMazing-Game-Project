@@ -1,12 +1,16 @@
 const canvas = document.getElementById('canvas1')
 const ctx = canvas.getContext('2d')
-canvas.width = 1100;
-canvas.height = 800;
-
-const cellSize = 100;
+canvas.width = 900;
+canvas.height = 600;
+//global variables
+const cellSize = 50;
 const cellGap = 3;
 const gameGrid=[];
+const blocks = [];
+let start = [0,300] ;
+let goal = [900,300];
 
+//mouse
 const mouse = {
     x: undefined,
     y: undefined,
@@ -22,15 +26,13 @@ canvas.addEventListener('mouseleave', function(){
     mouse.x = undefined;
     mouse.y = undefined;
 });
-canvas.addEventListener('click', function(){
-    
-})
+// canvas.addEventListener('mouseleave', function(){
+//     mouse.x = undefined;
+//     mouse.y = undefined;
+// });
 
-const controlsBar = {
-    width: canvas.width,
-    height: cellSize,
-}
 
+//game board
 
 class Cell {
     constructor(x, y){
@@ -39,45 +41,76 @@ class Cell {
         this.width = cellSize;
         this.height = cellSize;
     }
-    draw (){     
+    drawGrid (){     
         ctx.strokeStyle = 'black';
         ctx.strokeRect(this.x, this.y, this.width, this.height);
         
     }   
-    drawBlock (){
-        if (collision(this, mouse)){
-            ctx.strokeStyle = 'black';
-            ctx.strokeRect(this.x, this.y, this.width, this.height);
-        }
-    }
 }
-
 function createGrid(){
-    for(let y = cellSize; y < canvas.height; y+= cellSize){
-        for(let x = 0; x < canvas.width; x += cellSize){
+    for(let y = cellSize; y < canvas.height-cellSize; y+= cellSize){
+        for(let x = cellSize; x < canvas.width -cellSize; x += cellSize){
             gameGrid.push(new Cell(x, y));
         }
     }
 }
+
+//Blocks
+class Block{
+    constructor(x, y){
+        this.x = x
+        this.y = y;
+        this.width = cellSize;
+        this.height = cellSize;
+    }
+    drawBlock(){
+        ctx.fillStyle = 'blue',
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+    
+}
+canvas.addEventListener("click", function(){
+    const gridPositionX = mouse.x - (mouse.x % cellSize);
+    const gridPositionY = mouse.y -(mouse.y % cellSize);
+    if(gridPositionY < cellSize) return;
+    else{
+    blocks.push(new Block(gridPositionX, gridPositionY));
+    }
+})
+function drawStart(a,b){
+    console.log('drawStart')
+        ctx.fillStyle = 'red',
+        ctx.fillRect(a,b,this.width,this.height);
+    }
+function    drawGoal(a,b){
+    console.log('drawGoal')
+        ctx.fillStyle = 'red',
+        ctx.fillRect(a-(a % cellSize),b-(b%cellSize),this.width,this.height)
+    }
+
 createGrid()
 
 function handleGameGrid(){
-    console.log('work1')
     for(let i = 0; i< gameGrid.length; i++){
-        gameGrid[i].draw();
+        gameGrid[i].drawGrid();
     }
 }
 
-handleGameGrid()
 
-console.log(gameGrid)
+
+
+function handleBlocks(){
+    for(let i = 0; i< blocks.length; i++){
+        blocks[i].drawBlock();
+    }
+}
 
 function animate(){
-    //ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle ='red';
-    ctx.fillRect(0, 0, controlsBar.width, controlsBar.height);
+    drawGoal(goal)
+    drawStart(start)
+    handleBlocks()
+    handleGameGrid()
     requestAnimationFrame(animate);
-    
 }
 animate();
 
@@ -90,3 +123,6 @@ function collision(first, second){
         return true;
     }
 }
+window.addEventListener('resize', function(){
+    canvasPosition = canvas.getBoundingClientRect();
+    })
